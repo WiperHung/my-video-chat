@@ -9,24 +9,28 @@ const io = require("socket.io")(server, {
   },
 });
 var user_count = 0;
-var new_socket_id, old_socket_id;
+var admin_socket_id;
 app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 
 app.get("/", (req, res) => {
-  res.send("Running " + user_count + " " + new_socket_id);
+  res.send("Running " + user_count + " " + admin_socket_id);
 });
 
 io.on("connection", (socket) => {
   user_count += 1;
+  //   console.log(user_count);
   socket.emit("me", socket.id);
-  if (user_count == 1) old_socket_id = socket.id;
-  new_socket_id = socket.id;
-  if (old_socket_id) io.to(old_socket_id).emit("newcomer", new_socket_id);
+  if (admin_socket_id) io.to(admin_socket_id).emit("newcomer", socket.id);
 
   socket.on("disconnect", () => {
     socket.broadcast.emit("callEnded");
+  });
+
+  socket.on("setAdmin", (socket_id) => {
+    console.log("Set Admin", socket_id);
+    admin_socket_id = socket_id;
   });
 
   socket.on("callUser", ({ userToCall, signalData, from, name }) => {

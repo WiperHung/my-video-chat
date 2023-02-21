@@ -4,8 +4,8 @@ import Peer from "simple-peer";
 
 const SocketContext = createContext();
 
-// const socket = io('http://localhost:5000');
-const socket = io("https://my-video-chat.onrender.com");
+const socket = io("http://localhost:5000");
+// const socket = io("https://my-video-chat.onrender.com");
 
 const ContextProvider = ({ children }) => {
   const [callAccepted, setCallAccepted] = useState(false);
@@ -35,6 +35,12 @@ const ContextProvider = ({ children }) => {
     });
   }, []);
 
+  const setAdmin = () => {
+    socket.emit("setAdmin", me);
+    socket.on("newcomer", (id) => {
+      console.log(id);
+    });
+  };
   const answerCall = () => {
     setCallAccepted(true);
 
@@ -69,6 +75,8 @@ const ContextProvider = ({ children }) => {
       userVideo.current.srcObject = currentStream;
     });
 
+    peer.on("callEnded", leaveCall);
+
     socket.on("callAccepted", (signal) => {
       setCallAccepted(true);
 
@@ -101,6 +109,7 @@ const ContextProvider = ({ children }) => {
         callUser,
         leaveCall,
         answerCall,
+        setAdmin,
       }}
     >
       {children}
