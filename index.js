@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   user_count += 1;
   clients[idx] = socket.id;
+  console.log(clients);
   idx = (idx + 1) % 2;
   //   console.log(user_count);
   socket.emit("me", socket.id);
